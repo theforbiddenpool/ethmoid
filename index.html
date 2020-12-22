@@ -4,11 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Test</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    .form__error {
+      display: none;
+      color: red;
+      margin-top: .5em;
+      font-size: .875rem;
+    }
+
+    .form__error--show {
+      display: block;
+    }
+  </style>
 </head>
 <body>
   <div id="root">
-    <button id="getData">Get Data</button>
-    <button id="generatePptx">Generate pptx</button>
+    <form id="getdata-form" class="form" method="post">
+      <label>
+        Api link:
+        <input id="getdata-input" type="url" name="api_link">
+      </label>
+      <button id="generatePptx" class="btn">Generate pptx</button>
+      <span id="getdata-error" class="form__error">I'm sorry, something went wrong.</span>
+    </form>
   </div>
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.3.1/dist/pptxgen.bundle.js"></script>
   <script src="index.js"></script>
