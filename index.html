@@ -9,6 +9,28 @@
       font-family: sans-serif;
     }
 
+    .btn {
+      background-color: lightgray;
+      padding: .33em .85em;
+      border-radius: .25em;
+      border: 1px solid grey;
+      cursor: pointer;
+    }
+
+    .btn:active {
+      background-color: gray;
+      border-color: darkgray;
+    }
+
+    .options {
+      margin-bottom: 1em;
+    }
+
+    .options__btn--active {
+      background-color: lightskyblue;
+      border-color: cornflowerblue;
+    }
+
     .form__error {
       display: none;
       color: red;
@@ -23,6 +45,11 @@
 </head>
 <body>
   <div id="root">
+    <div class="options">
+      <button class="btn options__btn--active" value="bar">Bar Chart</button>
+      <button class="btn" value="line">Line Chart</button>
+      <button class="btn" value="table">Table</button>
+    </div>
     <form id="getdata-form" class="form" method="post">
       <label>
         Api link:
