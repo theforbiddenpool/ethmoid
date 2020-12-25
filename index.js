@@ -8,15 +8,29 @@ const optionsButtons = document.querySelectorAll('.options > .btn')
 
 const selectedOption = (function() {
   let option = 'bar'
-  const acceptedValues = ['bar', 'line']
+  let func = 'chart'
+  const acceptedValues = ['bar', 'line', 'table']
+
+  const setFunction = function() {
+    switch(option) {
+      case 'bar': case 'line':
+        return 'chart'
+      case 'table':
+        return 'table'
+    }
+  }
 
   return {
     get selected() {
       return option
     },
+    get transform() {
+      return func
+    },
     set selected(value) {
       if(acceptedValues.includes(value)) {
         option = value
+        func = setFunction()
       } else {
         throw new Error('Option currently not supported')
       }
@@ -62,11 +76,13 @@ const generatePptx = async function(e) {
   }
 
   const presentation = new PptxGenJS()
+  presentation.layout = 'LAYOUT_WIDE'
   const slide = presentation.addSlide()
+  slide.addText('Sales', { x: 0.5, y: 0.5, w: '90%', h: 0.5, fontSize: 30, align: 'center', bold: true })
 
-  const chartData = DataTransform.chart(data)
+  const chartData = DataTransform[selectedOption.transform](data)
+  const { funcKey, args } = getKeyAndArgs(presentation, chartData)
 
-  const {funcKey, args} = getKeyAndArgs(presentation, chartData)
   slide[funcKey](...args)
 
   presentation.writeFile('Sales.pptx')
@@ -80,26 +96,31 @@ function getKeyAndArgs(presentation, data) {
   switch (type) {
     case 'bar':
       funcKey = 'addChart'
-      args = [presentation.ChartType.bar, data, { x: 1, y: 1, w: 8, h: 4, barGrouping: 'stacked', showLegend: true, legendPos: 'b', showValue: true, showTitle: true, title: 'Sales', dataLabelFontSize: 6 }]
+      args = [presentation.ChartType.bar, data, { x: 1, y: 1.25, w: '85%', h: 5.5, barGrouping: 'stacked', showLegend: true, legendPos: 'b', showValue: true, dataLabelFontSize: 6 }]
       break;
-
+      
     case 'line':
       funcKey = 'addChart'
-      args = [presentation.ChartType.line, data, { x: 1, y: 1, w: 8, h: 4, showLegend: true, legendPos: 'b', showTitle: true, showValue: true, title: 'Sales', dataLabelFontSize: 6 }]
+      args = [presentation.ChartType.line, data, { x: 1, y: 1.25, w: '85%', h: 5.5, showLegend: true, legendPos: 'b', showValue: true, dataLabelFontSize: 6 }]
+      break;
+
+    case 'table':
+      funcKey = 'addTable'
+      args = [data, { w: '90%', x: 0.66, y: 1.25, border: { type: 'solid', pt: 0.75, color: '#000000' }, autoPage: true, autoPageRepeatHeader: true }]
       break;
   
     default:
       break;
   }
 
-  return {funcKey, args}
+  return { funcKey, args }
 }
 
 class DataTransform {
   static chart(data) {
     return data.reduce((acc, cur) => {
       let index = acc.findIndex(d => d.name === cur.closed_by)
-      if(index < null) {
+      if(index < 0) {
         acc.push({
           name: cur.closed_by,
           labels: DEFAUL_LABEL,
@@ -111,6 +132,34 @@ class DataTransform {
   
       return acc
     }, [])
+  }
+
+  static table(data) {
+    const sortedData = [...data]
+      .sort((a, b) =>
+        (a.closed_by > b.closed_by)
+        || (a.closed_by === b.closed_by && a.month > b.month))
+      .reduce((acc, cur) => {
+        let index = acc.findIndex(d => (d.closed_by  === cur.closed_by) && (d.month === cur.month))
+        if(index < 0) {
+          acc.push({ ...cur })
+        } else {
+          acc[index].amount += cur.amount
+        }
+        return acc
+      }, [])
+
+    const headerOptions = { fill: '#757575', fontSize: 15, align: 'center'}
+    const header = [
+      { text: 'Closed', options: headerOptions},
+      { text: 'Month', options: headerOptions},
+      { text: 'Amount', options: headerOptions},
+    ]
+    const rows = [
+      header,
+      ...sortedData.map(d => [d.closed_by, DEFAUL_LABEL[d.month], d.amount.toLocaleString()])
+    ]
+    return rows
   }
 }
 
