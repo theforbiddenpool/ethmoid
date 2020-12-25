@@ -3,7 +3,7 @@ const DEFAUL_LABEL = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'S
 const DEFAULT_VALUES = [null, null, null, null, null, null, null, null, null, null, null, null]
 
 const input = document.querySelector('#getdata-input')
-const errorSpan = document.querySelector('#getdata-error')
+const errorBox = document.querySelector('#error-box')
 const optionsButtons = document.querySelectorAll('.options > .btn')
 
 const selectedOption = (function() {
@@ -32,22 +32,22 @@ const selectedOption = (function() {
         option = value
         func = setFunction()
       } else {
-        throw new Error('Option currently not supported')
+        throw new Error('Option currently not supported.')
       }
     }
   }
 })()
 
 const handleOptionsButton = function(e) {
-  errorSpan.classList.remove('form__error--show')
+  errorBox.classList.remove('errorBox--show')
 
   try {
     selectedOption.selected = e.currentTarget.value
     optionsButtons.forEach((btn) => btn.classList.remove('options__btn--active'))
     e.currentTarget.classList.add('options__btn--active')
-  } catch {
-    errorSpan.textContent = 'Option currently not supported'
-    errorSpan.classList.add('form__error--show')
+  } catch(err) {
+    errorBox.textContent = err.message
+    errorBox.classList.add('errorBox--show')
   }
 }
 
@@ -61,31 +61,43 @@ const getData = function() {
       throw new Error(res.statusText) 
     })
     .then(data => data)
+    .catch(err => { throw err })
 }
 
 const generatePptx = async function(e) {
   e.preventDefault()
-  errorSpan.classList.remove('form__error--show')
-  const data = await getData()
-  // id, amount, month, closed_by
+  errorBox.classList.remove('errorBox--show')
+  
+  try {
+    const data = await getData()
+    // id, amount, month, closed_by
+    
+    if(!data || data.length === 0 || !Array.isArray(data)) {
+      throw new Error('I\'m sorry, there is something wrong with the data.')
+    }
 
-  if(!data) {
-    errorSpan.textContent = 'I\'m sorry, something went wrong.'
-    errorSpan.classList.add('form__error--show')
-    return
+    const presentation = new PptxGenJS()
+    presentation.layout = 'LAYOUT_WIDE'
+    const slide = presentation.addSlide()
+    slide.addText('Sales', { x: 0.5, y: 0.5, w: '90%', h: 0.5, fontSize: 30, align: 'center', bold: true })
+
+    const chartData = DataTransform[selectedOption.transform](data)
+    const { funcKey, args } = getKeyAndArgs(presentation, chartData)
+
+    slide[funcKey](...args)
+
+    presentation.writeFile('Sales.pptx')
+  } catch(err) {
+    const defaultMessage = 'I\'m sorry, something went wrong.'
+
+    if(!['Error', 'TypeError'].includes(err.name)) {
+      console.error(err)
+      err.message = defaultMessage
+    }
+
+    errorBox.textContent = err.message || defaultMessage
+    errorBox.classList.add('errorBox--show')
   }
-
-  const presentation = new PptxGenJS()
-  presentation.layout = 'LAYOUT_WIDE'
-  const slide = presentation.addSlide()
-  slide.addText('Sales', { x: 0.5, y: 0.5, w: '90%', h: 0.5, fontSize: 30, align: 'center', bold: true })
-
-  const chartData = DataTransform[selectedOption.transform](data)
-  const { funcKey, args } = getKeyAndArgs(presentation, chartData)
-
-  slide[funcKey](...args)
-
-  presentation.writeFile('Sales.pptx')
 }
 
 function getKeyAndArgs(presentation, data) {
