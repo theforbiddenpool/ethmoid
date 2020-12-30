@@ -2,7 +2,7 @@ import PptxGenJS from 'pptxgenjs';
 import selectedOption, { SupportedOptions } from './selectedOption';
 import { getData, parseData, getKeyAndArgs } from './helpers';
 
-const input = document.querySelector('#getdata-input') as HTMLInputElement;
+const form = document.querySelector('#generator-form') as HTMLFormElement;
 const optionsButtons = document.querySelectorAll('.options > .btn');
 const errorBox = document.querySelector('#error-box') as HTMLDivElement;
 
@@ -24,6 +24,7 @@ const handleOptionsButton = (e: Event) => {
 const generatePptx = async (e: Event) => {
   e.preventDefault();
   errorBox.classList.remove('errorBox--show');
+  const input = form.api_link as HTMLInputElement;
 
   try {
     const data = await getData(input.value);
@@ -36,15 +37,15 @@ const generatePptx = async (e: Event) => {
     const presentation = new PptxGenJS();
     presentation.layout = 'LAYOUT_WIDE';
     const slide = presentation.addSlide();
-    slide.addText('Sales', {
+    slide.addText(form['pptx-title'].value || 'Sales', {
       x: 0.5, y: 0.5, w: '90%', h: 0.5, fontSize: 30, align: 'center', bold: true,
     });
 
     const chartData = parseData(selectedOption.selected, data);
     const { funcKey, args } = getKeyAndArgs(selectedOption.selected, presentation, chartData);
 
-    // @ts-ignore Type 'null' cannot be used as an index type.
-    slide[funcKey](...args);
+    // @ts-ignore No index signature with a parameter of type 'string' was found
+    slide[funcKey]?.(...args);
 
     presentation.writeFile('Sales.pptx');
   } catch (err) {

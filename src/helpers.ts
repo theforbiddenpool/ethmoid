@@ -86,12 +86,12 @@ const parseData = (type: string, data: Array<FetchedData>): Array<Array<Object>>
 };
 
 interface KeyAndArgs {
-  funcKey: string | null,
+  funcKey: string,
   args: Array<Object>
 }
 
 const getKeyAndArgs = (type: string, presentation: any, data: Object): KeyAndArgs => {
-  let funcKey: string | null = null;
+  let funcKey: string = '';
   let args: Array<Object> = [];
 
   switch (type) {

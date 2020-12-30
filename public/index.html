@@ -31,6 +31,11 @@
       border-color: cornflowerblue;
     }
 
+    .form__control {
+      display: block;
+      margin-bottom: .75em;
+    }
+
     .errorBox {
       display: none;
       color: red;
@@ -50,11 +55,15 @@
       <button class="btn" value="line">Line Chart</button>
       <button class="btn" value="table">Table</button>
     </div>
-    <form id="getdata-form" class="form" method="post">
-      <label>
-        Api link:
-        <input id="getdata-input" type="url" name="api_link">
-      </label>
+    <form id="generator-form" class="form" method="post">
+      <div class="form__row">
+        <label for="generator-apiurl">API link:</label>
+        <input type="url" id="generator-apiurl" class="form__control" name="api_link">
+      </div>
+      <div class="form__row">
+        <label for="generator-title">Title:</label>
+        <input type="text" id="generator-title" class="form__control" name="pptx-title"  maxlength="50">
+      </div>
       <button id="generatePptx" class="btn">Generate pptx</button>
     </form>
     <div id="error-box" class="errorBox">
