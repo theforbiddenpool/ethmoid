@@ -41,6 +41,12 @@ const generatePptx = async (e: Event) => {
       x: 0.5, y: 0.5, w: '90%', h: 0.5, fontSize: 30, align: 'center', bold: true,
     });
 
+    // if (form['pptx-pagination'].checked === true) {
+    //   slide.slideNumber = {
+    //     x: 1.0, y: '95%', fontFace: 'Courier', fontSize: 32, color: 'CF0101',
+    //   };
+    // }
+
     const chartData = parseData(selectedOption.selected, data);
     const { funcKey, args } = getKeyAndArgs(selectedOption.selected, presentation, chartData);
 
