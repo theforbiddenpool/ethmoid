@@ -90,7 +90,14 @@ interface KeyAndArgs {
   args: Array<Object>
 }
 
-const getKeyAndArgs = (type: string, presentation: any, data: Object): KeyAndArgs => {
+const getKeyAndArgs = (presentation: any,
+  {
+    type, data, fontFace, chartColors,
+  }:
+  { type: string,
+    data: Object,
+    fontFace: string,
+    chartColors: Array<String> | null }): KeyAndArgs => {
   let funcKey: string = '';
   let args: Array<Object> = [];
 
@@ -98,21 +105,21 @@ const getKeyAndArgs = (type: string, presentation: any, data: Object): KeyAndArg
     case 'bar':
       funcKey = 'addChart';
       args = [presentation.ChartType.bar, data, {
-        x: 1, y: 1.25, w: '85%', h: 5.5, barGrouping: 'stacked', showLegend: true, legendPos: 'b', showValue: true, dataLabelFontSize: 6,
+        x: 1, y: 1.25, w: '85%', h: 5.5, barGrouping: 'stacked', showLegend: true, legendPos: 'b', showValue: true, dataLabelFontSize: 6, legendFontFace: fontFace, dataLabelFontFace: fontFace, valAxisLabelFontFace: fontFace, chartColors,
       }];
       break;
 
     case 'line':
       funcKey = 'addChart';
       args = [presentation.ChartType.line, data, {
-        x: 1, y: 1.25, w: '85%', h: 5.5, showLegend: true, legendPos: 'b', showValue: true, dataLabelFontSize: 6,
+        x: 1, y: 1.25, w: '85%', h: 5.5, showLegend: true, legendPos: 'b', showValue: true, dataLabelFontSize: 6, legendFontFace: fontFace, dataLabelFontFace: fontFace, valAxisLabelFontFace: fontFace, chartColors,
       }];
       break;
 
     case 'table':
       funcKey = 'addTable';
       args = [data, {
-        w: '90%', x: 0.66, y: 1.25, border: { type: 'solid', pt: 0.75, color: '#000000' }, autoPage: true, autoPageRepeatHeader: true,
+        w: '90%', x: 0.66, y: 1.25, border: { type: 'solid', pt: 0.75, color: '#000000' }, autoPage: true, autoPageRepeatHeader: true, fontFace,
       }];
       break;
 
@@ -123,4 +130,16 @@ const getKeyAndArgs = (type: string, presentation: any, data: Object): KeyAndArg
   return { funcKey, args };
 };
 
-export { getData, parseData, getKeyAndArgs };
+function getBase64Image(img: File): Promise<string | undefined> {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onloadend = () => {
+      resolve(fr.result?.toString());
+    };
+    fr.readAsDataURL(img);
+  });
+}
+
+export {
+  getData, parseData, getKeyAndArgs, getBase64Image,
+};

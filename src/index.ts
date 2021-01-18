@@ -1,6 +1,8 @@
 import PptxGenJS from 'pptxgenjs';
 import selectedOption, { SupportedOptions } from './selectedOption';
-import { getData, parseData, getKeyAndArgs } from './helpers';
+import {
+  getData, parseData, getKeyAndArgs, getBase64Image,
+} from './helpers';
 
 const form = document.querySelector('#generator-form') as HTMLFormElement;
 const optionsButtons = document.querySelectorAll('.options > .btn');
@@ -34,26 +36,36 @@ const generatePptx = async (e: Event) => {
       throw new Error('I\'m sorry, there is something wrong with the data.');
     }
 
+    const title = form['pptx-title'].value || 'Sales';
+    const fontFace = (form['pptx-font'].value) ? form['pptx-font'].value : 'Arial';
+    const fontTitle = (form['pptx-fontTitle'].value) ? form['pptx-fontTitle'] : 'Arial';
+    const chartColors = form['pptx-colors'].value && form['pptx-colors'].value.split(',');
+    const imageBg = form['pptx-bg'].files[0] && await getBase64Image(form['pptx-bg'].files[0]);
+
     const presentation = new PptxGenJS();
     presentation.layout = 'LAYOUT_WIDE';
-    const slide = presentation.addSlide();
-    slide.addText(form['pptx-title'].value || 'Sales', {
-      x: 0.5, y: 0.5, w: '90%', h: 0.5, fontSize: 30, align: 'center', bold: true,
-    });
+    presentation.author = form['pptx-author'].value || '';
+    presentation.company = form['pptx-company'].value || '';
+    presentation.revision = form['pptx-revision'].value || 0;
+    presentation.subject = form['pptx-subject'].value || '';
+    presentation.title = title;
 
-    // if (form['pptx-pagination'].checked === true) {
-    //   slide.slideNumber = {
-    //     x: 1.0, y: '95%', fontFace: 'Courier', fontSize: 32, color: 'CF0101',
-    //   };
-    // }
+    const slide = presentation.addSlide();
+    slide.addText(title, {
+      x: 0.5, y: 0.5, w: '90%', h: 0.5, fontSize: 30, align: 'center', bold: true, fontFace: fontTitle,
+    });
+    slide.background = { data: imageBg };
 
     const chartData = parseData(selectedOption.selected, data);
-    const { funcKey, args } = getKeyAndArgs(selectedOption.selected, presentation, chartData);
+    const { funcKey, args } = getKeyAndArgs(presentation,
+      {
+        type: selectedOption.selected, data: chartData, fontFace, chartColors,
+      });
 
     // @ts-ignore No index signature with a parameter of type 'string' was found
     slide[funcKey]?.(...args);
 
-    presentation.writeFile('Sales.pptx');
+    presentation.writeFile(`${title}.pptx`);
   } catch (err) {
     const defaultMessage = 'I\'m sorry, something went wrong.';
 
@@ -67,5 +79,5 @@ const generatePptx = async (e: Event) => {
   }
 };
 
-document.querySelector('#generatePptx')!.addEventListener('click', generatePptx);
+form.addEventListener('submit', generatePptx);
 optionsButtons.forEach((btn) => btn.addEventListener('click', handleOptionsButton));
