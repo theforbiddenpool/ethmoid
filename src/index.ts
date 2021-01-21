@@ -22,7 +22,7 @@ const generatePptx = async (e: Event) => {
     const title = form['pptx-title'].value || 'Sales';
     const fontFace = (form['pptx-font'].value) ? form['pptx-font'].value : 'Arial';
     const fontTitle = (form['pptx-fontTitle'].value) ? form['pptx-fontTitle'] : 'Arial';
-    const chartColors = form['pptx-colors'].value && form['pptx-colors'].value.split(',');
+    const chartColors = form['pptx-colors'].value && form['pptx-colors'].value.replace('\n', '').split(',');
     const imageBg = form['pptx-bg'].files[0] && await getBase64Image(form['pptx-bg'].files[0]);
 
     const presentation = new PptxGenJS();

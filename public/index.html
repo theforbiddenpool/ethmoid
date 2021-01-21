@@ -5,9 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ethmoid</title>
   <style>
+    *,*::after,*::before {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0; padding: 0; border: 0;
+    }
+
+    .pageWrapper {
       padding: 1em;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
     }
 
     .btn {
@@ -26,8 +37,30 @@
       border-color: darkgray;
     }
 
+    .title {
+      text-align: center;
+      margin-bottom: 3em;
+    }
+
+    .title__main {
+      font-size: 3rem;
+    }
+
+    .title__sub {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     .form__group {
       margin-bottom: 1em;
+      border-radius: .5em;
+      padding: .75em;
     }
 
     .form__group > .form__row:last-child {
@@ -35,11 +68,18 @@
     }
 
     .form__row {
-      margin-bottom: 1em;
+      margin-bottom: 1.33em;
     }
 
     .form__control {
       display: block;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    textarea.form__control {
+      resize: none;
+      padding: .5em;
     }
 
     .form__note {
@@ -52,6 +92,10 @@
       opacity: 0;
       position: absolute;
       left: -9999px;
+    }
+
+    .btn__radio + .btn {
+      margin-right: .5em;
     }
 
     .btn__radio:checked + .btn {
@@ -126,13 +170,23 @@
     .ml-1 {
       margin-left: .33em;
     }
+
+    .inline-center {
+      display: inline-flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
-  <div id="root">
+  <div id="root" class="pageWrapper">
+    <hgroup class="title">
+      <h1 class="title__main">Ethmoid</h1>
+      <p class="title__sub">Convert JSON monhtly sales data to a PowerPoint presentation</p>
+    </hgroup>
     <form id="gnt-form" class="form" method="post">
       <div class="form__row">
-        <div class="form__control">
+        <div class="form__control inline-center">
           <input type="radio" name="pptx-option" class="btn__radio" id="gnt-barchart" value="bar" checked>
           <label for="gnt-barchart" class="btn">Bar Chart</label>
 
@@ -178,7 +232,7 @@
         <legend>PowerPoint Look</legend>
         <div class="form__row">
           <label for="gnt-chartColors">Chart Colors</label>
-          <input type="text" id="gnt-chartColors" class="form__control" name="pptx-colors" pattern="([0-9a-fA-F]{6},?)*">
+          <textarea name="pptx-colors" id="gnt-chartColors" class="form__control" pattern="([0-9a-fA-F]{6},?)*" rows="2"></textarea>
           <span class="form__note">Expected pattern: abc123,000000,123ABC</span>
         </div>
         <div class="form__row">
