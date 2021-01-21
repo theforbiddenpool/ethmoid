@@ -1,27 +1,10 @@
 import PptxGenJS from 'pptxgenjs';
-import selectedOption, { SupportedOptions } from './selectedOption';
 import {
   getData, parseData, getKeyAndArgs, getBase64Image,
 } from './helpers';
 
-const form = document.querySelector('#generator-form') as HTMLFormElement;
-const optionsButtons = document.querySelectorAll('.options > .btn');
+const form = document.querySelector('#gnt-form') as HTMLFormElement;
 const errorBox = document.querySelector('#error-box') as HTMLDivElement;
-
-const handleOptionsButton = (e: Event) => {
-  const target = e.currentTarget as HTMLButtonElement;
-
-  errorBox.classList.remove('errorBox--show');
-
-  try {
-    selectedOption.selected = target.value as SupportedOptions;
-    optionsButtons.forEach((btn) => btn.classList.remove('options__btn--active'));
-    target.classList.add('options__btn--active');
-  } catch (err) {
-    errorBox.textContent = err.message;
-    errorBox.classList.add('errorBox--show');
-  }
-};
 
 const generatePptx = async (e: Event) => {
   e.preventDefault();
@@ -56,11 +39,18 @@ const generatePptx = async (e: Event) => {
     });
     slide.background = { data: imageBg };
 
-    const chartData = parseData(selectedOption.selected, data);
-    const { funcKey, args } = getKeyAndArgs(presentation,
+    const selectedOption = form['pptx-option'].value;
+    const wantsLongMonth = form['pptx-monthFormat'].checked;
+    const chartData = parseData(selectedOption, data, wantsLongMonth);
+    const { funcKey, args } = getKeyAndArgs(
+      presentation,
       {
-        type: selectedOption.selected, data: chartData, fontFace, chartColors,
-      });
+        type: selectedOption,
+        data: chartData,
+        fontFace,
+        chartColors,
+      },
+    );
 
     // @ts-ignore No index signature with a parameter of type 'string' was found
     slide[funcKey]?.(...args);
@@ -69,7 +59,7 @@ const generatePptx = async (e: Event) => {
   } catch (err) {
     const defaultMessage = 'I\'m sorry, something went wrong.';
 
-    if (!['Error', 'TypeError'].includes(err.name)) {
+    if (!['Error'].includes(err.name)) {
       console.error(err);
       err.message = defaultMessage;
     }
@@ -80,4 +70,3 @@ const generatePptx = async (e: Event) => {
 };
 
 form.addEventListener('submit', generatePptx);
-optionsButtons.forEach((btn) => btn.addEventListener('click', handleOptionsButton));

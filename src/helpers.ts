@@ -1,5 +1,6 @@
-/* eslint-disable import/prefer-default-export */
-import { DEFAULT_API, DEFAULT_VALUES, DEFAUL_LABEL } from './constants';
+import {
+  DEFAULT_API, DEFAULT_VALUES, LABEL_SHORT, LABEL_FULL,
+} from './constants';
 
 interface FetchedData {
   // eslint-disable-next-line camelcase
@@ -27,14 +28,14 @@ interface ChartData {
 }
 
 // eslint-disable-next-line max-len
-const parseData = (type: string, data: Array<FetchedData>): Array<Array<Object>> | Array<ChartData> => {
+const parseData = (type: string, data: Array<FetchedData>, wantsLongMonth: boolean): Array<Array<Object>> | Array<ChartData> => {
   function chart() {
     return data.reduce((acc: Array<ChartData>, cur: FetchedData) => {
       let index = acc.findIndex((d) => d.name === cur.closed_by);
       if (index < 0) {
         acc.push({
           name: cur.closed_by,
-          labels: DEFAUL_LABEL,
+          labels: (wantsLongMonth) ? LABEL_FULL : LABEL_SHORT,
           values: [...DEFAULT_VALUES],
         });
         index = (acc.length === 0) ? 0 : acc.length - 1;
@@ -70,7 +71,11 @@ const parseData = (type: string, data: Array<FetchedData>): Array<Array<Object>>
     ];
     const rows = [
       header,
-      ...sortedData.map((d) => [d.closed_by, DEFAUL_LABEL[d.month], d.amount.toLocaleString()]),
+      ...sortedData.map((d) => [
+        d.closed_by,
+        (wantsLongMonth ? LABEL_FULL[d.month] : LABEL_SHORT[d.month]),
+        d.amount.toLocaleString(),
+      ]),
     ];
     return rows;
   }
