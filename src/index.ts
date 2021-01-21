@@ -1,4 +1,5 @@
 import PptxGenJS from 'pptxgenjs';
+import './styles.css';
 import {
   getData, parseData, getKeyAndArgs, getBase64Image,
 } from './helpers';
