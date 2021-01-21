@@ -1,0 +1,171 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ethmoid</title><meta name="description" content="A website to convert JSON monthly sales data to a PowerPoint presentation."><style>*,*::after,*::before {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0; padding: 0; border: 0;
+    }
+
+    .pageWrapper {
+      padding: 1em;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .btn {
+      background-color: lightgray;
+      padding: .33em .85em;
+      border-radius: .25em;
+      border: 1px solid grey;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: lighter;
+    }
+
+    .btn:active {
+      background-color: gray;
+      border-color: darkgray;
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 3em;
+    }
+
+    .title__main {
+      font-size: 3rem;
+    }
+
+    .title__sub {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form__group {
+      margin-bottom: 1em;
+      border-radius: .5em;
+      padding: .75em;
+    }
+
+    .form__group > .form__row:last-child {
+      margin-bottom: 0;
+    }
+
+    .form__row {
+      margin-bottom: 1.33em;
+    }
+
+    .form__control {
+      display: block;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    textarea.form__control {
+      resize: none;
+      padding: .5em;
+    }
+
+    .form__note {
+      font-size: .75rem;
+      margin-top: .5em;
+      color: #595959;
+    }
+
+    .btn__radio {
+      opacity: 0;
+      position: absolute;
+      left: -9999px;
+    }
+
+    .btn__radio + .btn {
+      margin-right: .5em;
+    }
+
+    .btn__radio:checked + .btn {
+      background-color: lightskyblue;
+      border-color: cornflowerblue;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 45px;
+      height: 25px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch__slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 1em;
+    }
+
+    .switch__slider::before {
+      position: absolute;
+      content: "";
+      height: 19px;
+      width: 19px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    .switch input:checked + .switch__slider {
+      background-color: #2196F3;
+    }
+
+    .switch input:focus + .switch__slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    .switch input:checked + .switch__slider::before {
+      -webkit-transform: translateX(19px);
+      -ms-transform: translateX(19px);
+      transform: translateX(19px);
+    }
+
+    .errorBox {
+      display: none;
+      color: red;
+      margin-top: .5em;
+      font-size: .875rem;
+    }
+
+    .errorBox--show {
+      display: block;
+    }
+
+    .ml-1 {
+      margin-left: .33em;
+    }
+
+    .inline-center {
+      display: inline-flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }</style></head><body><div id="root" class="pageWrapper"><hgroup class="title"><h1 class="title__main">Ethmoid</h1><p class="title__sub">Convert JSON monhtly sales data to a PowerPoint presentation</p></hgroup><form id="gnt-form" class="form" method="post"><div class="form__row"><div class="form__control inline-center"><input type="radio" name="pptx-option" class="btn__radio" id="gnt-barchart" value="bar" checked="checked"> <label for="gnt-barchart" class="btn">Bar Chart</label> <input type="radio" name="pptx-option" class="btn__radio" id="gnt-linechart" value="line"> <label for="gnt-linechart" class="btn">Line Chart</label> <input type="radio" name="pptx-option" class="btn__radio" id="gnt-table" value="table"> <label for="gnt-table" class="btn">Table</label></div></div><div class="form__row"><label for="gnt-apiurl">API link:</label> <input type="url" id="gnt-apiurl" class="form__control" name="api_link" placeholder="https://api.example.com"><div class="form__note">Expected JSON structure: [ { id, amount, month, closed_by }, ... ]</div></div><div class="form__row"><label for="gnt-title">Title:</label> <input id="gnt-title" class="form__control" name="pptx-title" maxlength="50" placeholder="Sales"></div><fieldset class="form__group"><legend>Metadata</legend><div class="form__row"><label for="gnt-author">Author:</label> <input id="gnt-author" name="pptx-author" class="form__control"></div><div class="form__row"><label for="gnt-company">Company:</label> <input id="gnt-company" name="pptx-company" class="form__control"></div><div class="form__row"><label for="gnt-revision">Revision:</label> <input type="number" id="gnt-revision" name="pptx-revision" class="form__control" min="0" placeholder="0"></div><div class="form__row"><label for="gnt-subject">Subject</label> <input id="gnt-subject" name="pptx-subject" class="form__control"></div></fieldset><fieldset class="form__group"><legend>PowerPoint Look</legend><div class="form__row"><label for="gnt-chartColors">Chart Colors</label> <textarea name="pptx-colors" id="gnt-chartColors" class="form__control" pattern="([0-9a-fA-F]{6},?)*" rows="2"></textarea> <span class="form__note">Expected pattern: abc123,000000,123ABC</span></div><div class="form__row"><label for="gnt-fontFamily">Font Family</label> <input id="gnt-fontFamily" class="form__control" name="pptx-font" pattern="[\w\s]+" placeholder="Arial"></div><div class="form__row"><label for="gnt-fontTitle">Title Font Family</label> <input id="gnt-fontTitle" class="form__control" name="pptx-fontTitle" pattern="[\w\s]+" placeholder="Arial"></div><div class="form__row"><label for="gnt-monthFormat"><div class="switch"><input type="checkbox" name="pptx-monthFormat" id="gnt-monthFormat"> <span class="switch__slider"></span></div><span class="ml-1">Month Long Names</span></label></div><div class="form__row"><label for="gnt-background">Background Image</label> <input type="file" id="gnt-background" class="form__control" name="pptx-bg" accept="image/*"></div></fieldset><button type="submit" id="generatePptx" class="btn">Generate pptx</button></form><div id="error-box" class="errorBox">I'm sorry, something went wrong.</div></div><script src="bundle.js"></script></body></html>
